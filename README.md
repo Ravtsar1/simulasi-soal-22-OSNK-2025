@@ -10,5 +10,3 @@ Simulasi memuat dua kasus gerak Didi:
 File utama:
 
 - `index.html`
-
-Untuk GitHub Pages, aktifkan Pages dari branch `main` dan folder `/root`.
