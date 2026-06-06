@@ -1,0 +1,1008 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Simulasi Pursuit Curve OSK 2025 No. 22</title>
+  <style>
+    :root {
+      --bg: #f6f7f4;
+      --panel: #ffffff;
+      --ink: #1c2430;
+      --muted: #647080;
+      --line: #d8ded6;
+      --andi: #2364aa;
+      --budi: #c3423f;
+      --didi: #2f7d5c;
+      --accent: #8a5a00;
+      --meet: #7b3fc6;
+      --shadow: 0 18px 55px rgba(26, 34, 45, 0.13);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--ink);
+      background:
+        linear-gradient(135deg, rgba(35, 100, 170, 0.10), transparent 38%),
+        linear-gradient(315deg, rgba(47, 125, 92, 0.10), transparent 42%),
+        var(--bg);
+    }
+
+    main {
+      width: min(1180px, calc(100vw - 28px));
+      margin: 0 auto;
+      padding: 24px 0 28px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      align-items: flex-end;
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.35rem, 2.5vw, 2.1rem);
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      margin: 7px 0 0;
+      color: var(--muted);
+      font-size: 0.96rem;
+      line-height: 1.45;
+    }
+
+    .shell {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 360px;
+      gap: 16px;
+      align-items: stretch;
+    }
+
+    .stage,
+    .controls {
+      background: var(--panel);
+      border: 1px solid rgba(28, 36, 48, 0.08);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .stage {
+      position: relative;
+      overflow: hidden;
+      min-height: 610px;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 610px;
+      background: #fbfcfb;
+    }
+
+    .badge-row {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      pointer-events: none;
+    }
+
+    .badge {
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.88);
+      border: 1px solid rgba(28, 36, 48, 0.10);
+      color: var(--ink);
+      font-size: 0.86rem;
+      backdrop-filter: blur(10px);
+    }
+
+    .controls {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .button-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+    }
+
+    button,
+    select {
+      appearance: none;
+      border: 1px solid rgba(28, 36, 48, 0.14);
+      border-radius: 7px;
+      background: #ffffff;
+      color: var(--ink);
+      font: inherit;
+      min-height: 40px;
+    }
+
+    button {
+      cursor: pointer;
+      font-weight: 650;
+    }
+
+    button.primary {
+      color: #ffffff;
+      background: var(--ink);
+      border-color: var(--ink);
+    }
+
+    select {
+      padding: 0 32px 0 11px;
+      background-image:
+        linear-gradient(45deg, transparent 50%, var(--muted) 50%),
+        linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+      background-position:
+        calc(100% - 18px) 17px,
+        calc(100% - 12px) 17px;
+      background-size: 6px 6px;
+      background-repeat: no-repeat;
+    }
+
+    .control {
+      display: grid;
+      gap: 8px;
+    }
+
+    .control-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 0.92rem;
+    }
+
+    .value {
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--andi);
+    }
+
+    .readout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 9px 10px;
+      min-height: 58px;
+      background: #fbfcfb;
+    }
+
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.76rem;
+      margin-bottom: 4px;
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 1rem;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.2;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 2px;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .formula {
+      color: #334052;
+      background: #f7f8f5;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 10px;
+      line-height: 1.5;
+      font-size: 0.88rem;
+    }
+
+    .status {
+      border-radius: 7px;
+      padding: 10px;
+      background: rgba(138, 90, 0, 0.10);
+      border: 1px solid rgba(138, 90, 0, 0.20);
+      color: #4e370b;
+      min-height: 44px;
+      line-height: 1.4;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 900px) {
+      header {
+        display: block;
+      }
+
+      .shell {
+        grid-template-columns: 1fr;
+      }
+
+      .stage {
+        min-height: 520px;
+      }
+
+      canvas {
+        height: 520px;
+      }
+    }
+
+    @media (max-width: 560px) {
+      main {
+        width: min(100vw - 18px, 1180px);
+        padding-top: 14px;
+      }
+
+      .readout {
+        grid-template-columns: 1fr;
+      }
+
+      .button-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <h1>Simulasi Pursuit Curve OSK SMA Fisika 2025 No. 22</h1>
+        <p class="subtitle">Koordinat awal: Andi (-L, 0, 0), Budi (0, 0, 0), Didi (L, 0, 0). Simulasi mengikuti dua kasus pada solusi LaTeX.</p>
+      </div>
+    </header>
+
+    <section class="shell">
+      <div class="stage">
+        <canvas id="scene" aria-label="Animasi pursuit curve Andi, Budi, dan Didi"></canvas>
+        <div class="badge-row">
+          <div class="badge" id="badgeTime">t = 0.000 s</div>
+          <div class="badge" id="badgeMode">Kasus 1: titik tangkap</div>
+        </div>
+      </div>
+
+      <aside class="controls">
+        <div class="button-row">
+          <button class="primary" id="playPause" type="button">Play</button>
+          <button id="reset" type="button">Reset</button>
+        </div>
+
+        <div class="control">
+          <div class="control-head">
+            <label for="timeSlider">Waktu</label>
+            <span class="value" id="timeValue">0.000 s</span>
+          </div>
+          <input id="timeSlider" type="range" min="0" max="1" step="0.001" value="0">
+        </div>
+
+        <div class="control">
+          <div class="control-head">
+            <label for="lSlider">L</label>
+            <span class="value" id="lValue">4.0 m</span>
+          </div>
+          <input id="lSlider" type="range" min="1" max="10" step="0.1" value="4">
+        </div>
+
+        <div class="control">
+          <div class="control-head">
+            <label for="vSlider">v</label>
+            <span class="value" id="vValue">1.00 m/s</span>
+          </div>
+          <input id="vSlider" type="range" min="0.2" max="3" step="0.01" value="1">
+        </div>
+
+        <div class="control">
+          <div class="control-head">
+            <label for="vpSlider">v&apos; / v</label>
+            <span class="value" id="vpValue">0.980</span>
+          </div>
+          <input id="vpSlider" type="range" min="0.2" max="2" step="0.001" value="0.98">
+        </div>
+
+        <div class="control">
+          <div class="control-head">
+            <label for="speedSlider">Kecepatan animasi</label>
+            <span class="value" id="speedValue">1.0x</span>
+          </div>
+          <input id="speedSlider" type="range" min="0.2" max="5" step="0.1" value="1">
+        </div>
+
+        <div class="control">
+          <div class="control-head">
+            <label for="modeSelect">Mode Didi</label>
+          </div>
+          <select id="modeSelect">
+            <option value="direct">Kasus 1: lurus ke titik tangkap</option>
+            <option value="pursuit">Kasus 2: selalu mengarah ke Andi</option>
+          </select>
+        </div>
+
+        <div class="control">
+          <div class="control-head">
+            <label for="spinSelect">Arah Budi</label>
+          </div>
+          <select id="spinSelect">
+            <option value="1">Berlawanan jarum jam</option>
+            <option value="-1">Searah jarum jam</option>
+          </select>
+        </div>
+
+        <div class="legend">
+          <span class="legend-item"><span class="dot" style="background: var(--andi)"></span>Andi</span>
+          <span class="legend-item"><span class="dot" style="background: var(--budi)"></span>Budi</span>
+          <span class="legend-item"><span class="dot" style="background: var(--didi)"></span>Didi</span>
+          <span class="legend-item"><span class="dot" style="background: var(--meet)"></span>Titik temu D-A</span>
+        </div>
+
+        <div class="readout">
+          <div class="metric">
+            <span>t tangkap A-B</span>
+            <strong id="catchTime">8.000 s</strong>
+          </div>
+          <div class="metric">
+            <span>posisi tangkap A-B</span>
+            <strong id="catchPoint">(-2.00, 3.46)</strong>
+          </div>
+          <div class="metric">
+            <span>v&apos; dipilih</span>
+            <strong id="selectedSpeed">0.980 m/s</strong>
+          </div>
+          <div class="metric">
+            <span>v&apos; min lurus</span>
+            <strong id="minDirect">0.866 m/s</strong>
+          </div>
+          <div class="metric">
+            <span>v&apos; min pursuit</span>
+            <strong id="minPursuit">0.980 m/s</strong>
+          </div>
+          <div class="metric">
+            <span>jarak Didi-Andi</span>
+            <strong id="distanceDA">2.000 m</strong>
+          </div>
+          <div class="metric">
+            <span>jarak akhir D-A</span>
+            <strong id="finalGap">0.000 m</strong>
+          </div>
+          <div class="metric">
+            <span>waktu temu D-A</span>
+            <strong id="meetTime">belum</strong>
+          </div>
+          <div class="metric">
+            <span>titik temu D-A</span>
+            <strong id="meetPoint">belum</strong>
+          </div>
+          <div class="metric">
+            <span>batas mode aktif</span>
+            <strong id="activeLimit">0.866v</strong>
+          </div>
+        </div>
+
+        <div class="status" id="statusText">Siap.</div>
+
+        <div class="formula">
+          R(t) = L - vt/2, &theta; = &radic;3 ln(L/R),<br>
+          P = (-L/2, &plusmn;&radic;3 L/2),<br>
+          Q = titik temu Didi-Andi,<br>
+          Kasus 1: v&apos;<sub>min</sub> = (&radic;3/2)v = 0.866v,<br>
+          Kasus 2: v&apos;<sub>min</sub> &asymp; 0.980v.
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const canvas = document.getElementById("scene");
+      const ctx = canvas.getContext("2d");
+      const SQRT3 = Math.sqrt(3);
+      const EPS = 1e-9;
+      const STEPS = 3200;
+      const DIRECT_MIN_RATIO = SQRT3 / 2;
+      const PURSUIT_MIN_RATIO = 0.98;
+
+      const els = {
+        playPause: document.getElementById("playPause"),
+        reset: document.getElementById("reset"),
+        timeSlider: document.getElementById("timeSlider"),
+        lSlider: document.getElementById("lSlider"),
+        vSlider: document.getElementById("vSlider"),
+        vpSlider: document.getElementById("vpSlider"),
+        speedSlider: document.getElementById("speedSlider"),
+        modeSelect: document.getElementById("modeSelect"),
+        spinSelect: document.getElementById("spinSelect"),
+        timeValue: document.getElementById("timeValue"),
+        lValue: document.getElementById("lValue"),
+        vValue: document.getElementById("vValue"),
+        vpValue: document.getElementById("vpValue"),
+        speedValue: document.getElementById("speedValue"),
+        catchTime: document.getElementById("catchTime"),
+        selectedSpeed: document.getElementById("selectedSpeed"),
+        minDirect: document.getElementById("minDirect"),
+        minPursuit: document.getElementById("minPursuit"),
+        distanceDA: document.getElementById("distanceDA"),
+        finalGap: document.getElementById("finalGap"),
+        meetTime: document.getElementById("meetTime"),
+        meetPoint: document.getElementById("meetPoint"),
+        activeLimit: document.getElementById("activeLimit"),
+        catchPoint: document.getElementById("catchPoint"),
+        statusText: document.getElementById("statusText"),
+        badgeTime: document.getElementById("badgeTime"),
+        badgeMode: document.getElementById("badgeMode")
+      };
+
+      const colors = {
+        andi: getCss("--andi"),
+        budi: getCss("--budi"),
+        didi: getCss("--didi"),
+        ink: getCss("--ink"),
+        muted: getCss("--muted"),
+        line: getCss("--line"),
+        accent: getCss("--accent"),
+        meet: getCss("--meet")
+      };
+
+      let trajectory = null;
+      let currentTime = 0;
+      let isPlaying = false;
+      let lastFrame = performance.now();
+
+      function getCss(name) {
+        return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+      }
+
+      function readParams() {
+        const L = Number(els.lSlider.value);
+        const v = Number(els.vSlider.value);
+        const vpRatio = Number(els.vpSlider.value);
+        const speed = Number(els.speedSlider.value);
+        const spin = Number(els.spinSelect.value);
+        const mode = els.modeSelect.value;
+        return {
+          L,
+          v,
+          vpRatio,
+          vp: vpRatio * v,
+          speed,
+          spin,
+          mode,
+          tCatch: 2 * L / v
+        };
+      }
+
+      function abState(t, params) {
+        const { L, v, spin, tCatch } = params;
+        const clamped = Math.max(0, Math.min(t, tCatch));
+        if (clamped >= tCatch - 1e-10) {
+          const p = catchPoint(params);
+          return {
+            A: { x: p.x, y: p.y },
+            B: { x: p.x, y: p.y },
+            R: 0,
+            theta: Infinity
+          };
+        }
+
+        const R = Math.max(L - 0.5 * v * clamped, EPS);
+        const u = Math.log(L / R);
+        const theta = spin * SQRT3 * u;
+        const e = R / L;
+        const den = 1 + SQRT3 * SQRT3;
+
+        const iCos = L * (1 - e * Math.cos(SQRT3 * u) + SQRT3 * e * Math.sin(SQRT3 * u)) / den;
+        const iSin = spin * L * (SQRT3 - e * Math.sin(SQRT3 * u) - SQRT3 * e * Math.cos(SQRT3 * u)) / den;
+
+        const A = {
+          x: -L + 2 * iCos,
+          y: 2 * iSin
+        };
+        const B = {
+          x: A.x + R * Math.cos(theta),
+          y: A.y + R * Math.sin(theta)
+        };
+
+        return { A, B, R, theta };
+      }
+
+      function catchPoint(params) {
+        return {
+          x: -params.L / 2,
+          y: params.spin * SQRT3 * params.L / 2
+        };
+      }
+
+      function distance(a, b) {
+        return Math.hypot(a.x - b.x, a.y - b.y);
+      }
+
+      function mix(a, b, t) {
+        return {
+          x: a.x + (b.x - a.x) * t,
+          y: a.y + (b.y - a.y) * t
+        };
+      }
+
+      function buildTrajectory(params) {
+        const points = [];
+        const p = catchPoint(params);
+        const d0 = { x: params.L, y: 0 };
+        const dp = distance(d0, p);
+        const dirToP = {
+          x: (p.x - d0.x) / dp,
+          y: (p.y - d0.y) / dp
+        };
+        const tDDirect = dp / params.vp;
+        let didi = { ...d0 };
+        let didiCaughtAt = null;
+        let didiMeetPoint = null;
+        const catchRadius = params.L * 2e-4;
+
+        for (let i = 0; i <= STEPS; i += 1) {
+          const t = params.tCatch * i / STEPS;
+          const ab = abState(t, params);
+
+          if (params.mode === "direct") {
+            const travelled = Math.min(params.vp * t, dp);
+            didi = {
+              x: d0.x + dirToP.x * travelled,
+              y: d0.y + dirToP.y * travelled
+            };
+            if (tDDirect <= params.tCatch && t >= params.tCatch && didiCaughtAt === null) {
+              didiCaughtAt = params.tCatch;
+              didiMeetPoint = { ...p };
+            }
+          } else if (i === 0) {
+            didi = { ...d0 };
+          } else if (didiCaughtAt !== null) {
+            didi = { ...ab.A };
+          } else {
+            const prevT = params.tCatch * (i - 1) / STEPS;
+            const dt = t - prevT;
+            const subSteps = 5;
+            for (let s = 1; s <= subSteps; s += 1) {
+              const subT = prevT + dt * s / subSteps;
+              const target = abState(subT, params).A;
+              const gap = distance(didi, target);
+              if (gap <= catchRadius) {
+                didi = { ...target };
+                didiCaughtAt = subT;
+                didiMeetPoint = { ...target };
+                break;
+              }
+              const move = params.vp * dt / subSteps;
+              if (move >= gap) {
+                didi = { ...target };
+                didiCaughtAt = subT;
+                didiMeetPoint = { ...target };
+                break;
+              }
+              didi = {
+                x: didi.x + (target.x - didi.x) * (move / gap),
+                y: didi.y + (target.y - didi.y) * (move / gap)
+              };
+            }
+          }
+
+          points.push({
+            t,
+            A: ab.A,
+            B: ab.B,
+            D: { ...didi },
+            R: ab.R
+          });
+        }
+
+        const finalPoint = points[points.length - 1];
+        const finalGap = distance(finalPoint.D, finalPoint.A);
+        const bounds = makeBounds(points, params);
+        return { params, points, bounds, tDDirect, didiCaughtAt, didiMeetPoint, finalGap };
+      }
+
+      function makeBounds(points, params) {
+        const p = catchPoint(params);
+        let minX = Math.min(-params.L, 0, params.L, p.x);
+        let maxX = Math.max(-params.L, 0, params.L, p.x);
+        let minY = Math.min(0, p.y);
+        let maxY = Math.max(0, p.y);
+
+        for (const point of points) {
+          for (const key of ["A", "B", "D"]) {
+            minX = Math.min(minX, point[key].x);
+            maxX = Math.max(maxX, point[key].x);
+            minY = Math.min(minY, point[key].y);
+            maxY = Math.max(maxY, point[key].y);
+          }
+        }
+
+        const span = Math.max(maxX - minX, maxY - minY, params.L);
+        const margin = 0.18 * span;
+        return {
+          minX: minX - margin,
+          maxX: maxX + margin,
+          minY: minY - margin,
+          maxY: maxY + margin
+        };
+      }
+
+      function resizeCanvas() {
+        const rect = canvas.getBoundingClientRect();
+        const dpr = Math.max(1, window.devicePixelRatio || 1);
+        canvas.width = Math.round(rect.width * dpr);
+        canvas.height = Math.round(rect.height * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        draw();
+      }
+
+      function worldToScreen(point, bounds) {
+        const w = canvas.clientWidth;
+        const h = canvas.clientHeight;
+        const sx = w / (bounds.maxX - bounds.minX);
+        const sy = h / (bounds.maxY - bounds.minY);
+        const scale = Math.min(sx, sy);
+        const usedW = scale * (bounds.maxX - bounds.minX);
+        const usedH = scale * (bounds.maxY - bounds.minY);
+        const ox = (w - usedW) / 2;
+        const oy = (h - usedH) / 2;
+        return {
+          x: ox + (point.x - bounds.minX) * scale,
+          y: h - (oy + (point.y - bounds.minY) * scale)
+        };
+      }
+
+      function pointAt(t) {
+        const pts = trajectory.points;
+        const index = Math.max(0, Math.min(STEPS, t / trajectory.params.tCatch * STEPS));
+        const lo = Math.floor(index);
+        const hi = Math.min(STEPS, lo + 1);
+        const f = index - lo;
+        return {
+          index: lo,
+          t,
+          A: mix(pts[lo].A, pts[hi].A, f),
+          B: mix(pts[lo].B, pts[hi].B, f),
+          D: mix(pts[lo].D, pts[hi].D, f),
+          R: pts[lo].R + (pts[hi].R - pts[lo].R) * f
+        };
+      }
+
+      function draw() {
+        if (!trajectory) return;
+
+        const w = canvas.clientWidth;
+        const h = canvas.clientHeight;
+        ctx.clearRect(0, 0, w, h);
+
+        drawGrid();
+        drawAxes();
+
+        const now = pointAt(currentTime);
+        drawPath("A", now.index, colors.andi);
+        drawPath("B", now.index, colors.budi);
+        drawPath("D", now.index, colors.didi);
+        drawCatchPoint();
+        drawMeetPoint();
+        drawSegment(now.A, now.B, "rgba(28, 36, 48, 0.32)", [5, 5]);
+        drawSegment(now.D, now.A, "rgba(47, 125, 92, 0.28)", [4, 6]);
+        drawAgent(now.A, colors.andi, "A");
+        drawAgent(now.B, colors.budi, "B");
+        drawAgent(now.D, colors.didi, "D");
+        updateReadout(now);
+      }
+
+      function drawGrid() {
+        const { bounds } = trajectory;
+        const step = niceStep((bounds.maxX - bounds.minX) / 8);
+        ctx.save();
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = "rgba(100, 112, 128, 0.16)";
+        ctx.fillStyle = "rgba(100, 112, 128, 0.75)";
+        ctx.font = "12px Segoe UI, sans-serif";
+
+        for (let x = Math.ceil(bounds.minX / step) * step; x <= bounds.maxX; x += step) {
+          const a = worldToScreen({ x, y: bounds.minY }, bounds);
+          const b = worldToScreen({ x, y: bounds.maxY }, bounds);
+          ctx.beginPath();
+          ctx.moveTo(a.x, a.y);
+          ctx.lineTo(b.x, b.y);
+          ctx.stroke();
+        }
+
+        for (let y = Math.ceil(bounds.minY / step) * step; y <= bounds.maxY; y += step) {
+          const a = worldToScreen({ x: bounds.minX, y }, bounds);
+          const b = worldToScreen({ x: bounds.maxX, y }, bounds);
+          ctx.beginPath();
+          ctx.moveTo(a.x, a.y);
+          ctx.lineTo(b.x, b.y);
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+
+      function niceStep(raw) {
+        const pow = Math.pow(10, Math.floor(Math.log10(raw)));
+        const scaled = raw / pow;
+        if (scaled < 1.5) return pow;
+        if (scaled < 3.5) return 2 * pow;
+        if (scaled < 7.5) return 5 * pow;
+        return 10 * pow;
+      }
+
+      function drawAxes() {
+        const { bounds } = trajectory;
+        ctx.save();
+        ctx.strokeStyle = "rgba(28, 36, 48, 0.32)";
+        ctx.lineWidth = 1.4;
+        const x0a = worldToScreen({ x: bounds.minX, y: 0 }, bounds);
+        const x0b = worldToScreen({ x: bounds.maxX, y: 0 }, bounds);
+        const y0a = worldToScreen({ x: 0, y: bounds.minY }, bounds);
+        const y0b = worldToScreen({ x: 0, y: bounds.maxY }, bounds);
+        ctx.beginPath();
+        ctx.moveTo(x0a.x, x0a.y);
+        ctx.lineTo(x0b.x, x0b.y);
+        ctx.moveTo(y0a.x, y0a.y);
+        ctx.lineTo(y0b.x, y0b.y);
+        ctx.stroke();
+        ctx.fillStyle = colors.muted;
+        ctx.font = "13px Segoe UI, sans-serif";
+        ctx.fillText("x", x0b.x - 18, x0b.y - 8);
+        ctx.fillText("y", y0b.x + 8, y0b.y + 16);
+        ctx.restore();
+      }
+
+      function drawPath(key, maxIndex, color) {
+        const { points, bounds } = trajectory;
+        if (maxIndex < 1) return;
+        ctx.save();
+        ctx.lineWidth = 2.4;
+        ctx.strokeStyle = color;
+        ctx.globalAlpha = 0.72;
+        ctx.beginPath();
+        for (let i = 0; i <= maxIndex; i += 1) {
+          const p = worldToScreen(points[i][key], bounds);
+          if (i === 0) ctx.moveTo(p.x, p.y);
+          else ctx.lineTo(p.x, p.y);
+        }
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      function drawSegment(a, b, color, dash) {
+        const { bounds } = trajectory;
+        const pa = worldToScreen(a, bounds);
+        const pb = worldToScreen(b, bounds);
+        ctx.save();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 1.6;
+        ctx.setLineDash(dash);
+        ctx.beginPath();
+        ctx.moveTo(pa.x, pa.y);
+        ctx.lineTo(pb.x, pb.y);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      function drawCatchPoint() {
+        const p = catchPoint(trajectory.params);
+        const s = worldToScreen(p, trajectory.bounds);
+        ctx.save();
+        ctx.strokeStyle = colors.accent;
+        ctx.fillStyle = colors.accent;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(s.x - 9, s.y);
+        ctx.lineTo(s.x + 9, s.y);
+        ctx.moveTo(s.x, s.y - 9);
+        ctx.lineTo(s.x, s.y + 9);
+        ctx.stroke();
+        ctx.font = "12px Segoe UI, sans-serif";
+        ctx.fillText("P", s.x + 11, s.y - 8);
+        ctx.restore();
+      }
+
+      function drawMeetPoint() {
+        if (!trajectory.didiMeetPoint) return;
+
+        const p = trajectory.didiMeetPoint;
+        const s = worldToScreen(p, trajectory.bounds);
+        const catchScreen = worldToScreen(catchPoint(trajectory.params), trajectory.bounds);
+        const labelOffsetY = Math.hypot(s.x - catchScreen.x, s.y - catchScreen.y) < 6 ? 18 : -8;
+
+        ctx.save();
+        ctx.strokeStyle = "#ffffff";
+        ctx.fillStyle = colors.meet;
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.moveTo(s.x, s.y - 11);
+        ctx.lineTo(s.x + 11, s.y);
+        ctx.lineTo(s.x, s.y + 11);
+        ctx.lineTo(s.x - 11, s.y);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = colors.meet;
+        ctx.font = "700 12px Segoe UI, sans-serif";
+        ctx.fillText("Q", s.x + 13, s.y + labelOffsetY);
+        ctx.restore();
+      }
+
+      function drawAgent(point, color, label) {
+        const s = worldToScreen(point, trajectory.bounds);
+        ctx.save();
+        ctx.fillStyle = color;
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, 9, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "700 11px Segoe UI, sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(label, s.x, s.y + 0.5);
+        ctx.restore();
+      }
+
+      function updateReadout(now) {
+        const p = trajectory.params;
+        const cp = catchPoint(p);
+        const dDA = distance(now.D, now.A);
+        const minDirect = DIRECT_MIN_RATIO * p.v;
+        const minPursuit = PURSUIT_MIN_RATIO * p.v;
+        const activeRatio = p.mode === "direct" ? DIRECT_MIN_RATIO : PURSUIT_MIN_RATIO;
+        const activeLimit = activeRatio * p.v;
+        const modeLabel = p.mode === "direct" ? "Kasus 1: titik tangkap" : "Kasus 2: pure pursuit";
+
+        els.timeValue.textContent = `${currentTime.toFixed(3)} s`;
+        els.badgeTime.textContent = `t = ${currentTime.toFixed(3)} s`;
+        els.badgeMode.textContent = modeLabel;
+        els.lValue.textContent = `${p.L.toFixed(1)} m`;
+        els.vValue.textContent = `${p.v.toFixed(2)} m/s`;
+        els.vpValue.textContent = `${p.vpRatio.toFixed(3)} (${p.vp.toFixed(3)} m/s)`;
+        els.speedValue.textContent = `${p.speed.toFixed(1)}x`;
+        els.catchTime.textContent = `${p.tCatch.toFixed(3)} s`;
+        els.selectedSpeed.textContent = `${p.vp.toFixed(3)} m/s`;
+        els.minDirect.textContent = `${minDirect.toFixed(3)} m/s`;
+        els.minPursuit.textContent = `${minPursuit.toFixed(3)} m/s`;
+        els.distanceDA.textContent = `${dDA.toFixed(3)} m`;
+        els.finalGap.textContent = `${trajectory.finalGap.toExponential(2)} m`;
+        els.activeLimit.textContent = `${activeLimit.toFixed(3)} m/s`;
+        els.catchPoint.textContent = `(${cp.x.toFixed(2)}, ${cp.y.toFixed(2)})`;
+        if (trajectory.didiMeetPoint) {
+          els.meetTime.textContent = `${trajectory.didiCaughtAt.toFixed(3)} s`;
+          els.meetPoint.textContent = `(${trajectory.didiMeetPoint.x.toFixed(2)}, ${trajectory.didiMeetPoint.y.toFixed(2)})`;
+        } else {
+          els.meetTime.textContent = "tidak tercapai";
+          els.meetPoint.textContent = "tidak tercapai";
+        }
+
+        if (p.mode === "direct") {
+          if (trajectory.tDDirect <= p.tCatch && currentTime >= p.tCatch) {
+            els.statusText.textContent = "Kasus 1 sesuai solusi LaTeX: Didi bergerak lurus ke P. Titik temu Didi-Andi adalah Q, yang bertumpuk dengan P.";
+          } else if (trajectory.tDDirect <= currentTime) {
+            els.statusText.textContent = "Didi sudah berada di titik tangkap P dan menunggu Andi; titik temu akhirnya adalah Q = P.";
+          } else if (currentTime >= p.tCatch) {
+            els.statusText.textContent = "Andi sudah menangkap Budi sebelum Didi tiba.";
+          } else if (p.vpRatio + 1e-9 < DIRECT_MIN_RATIO) {
+            els.statusText.textContent = "Kecepatan Didi masih di bawah batas kasus lurus, yaitu 0.866v.";
+          } else {
+            els.statusText.textContent = "Andi-Budi bergerak sebagai pursuit curve; Didi bergerak lurus ke titik tangkap P. Marker Q menunjukkan titik temu Didi-Andi.";
+          }
+        } else if (trajectory.didiCaughtAt !== null && currentTime >= trajectory.didiCaughtAt) {
+          els.statusText.textContent = `Kasus 2: Didi menangkap Andi di Q pada t = ${trajectory.didiCaughtAt.toFixed(3)} s. Batas solusi numerik sekitar 0.980v.`;
+        } else if (currentTime >= p.tCatch) {
+          els.statusText.textContent = "Andi sudah menangkap Budi; pada mode pure pursuit ini Didi belum berhasil.";
+        } else if (p.vpRatio + 1e-9 < PURSUIT_MIN_RATIO) {
+          els.statusText.textContent = "Kecepatan Didi masih di bawah batas kasus pure pursuit, yaitu sekitar 0.980v.";
+        } else {
+          els.statusText.textContent = "Didi selalu mengarahkan kecepatannya ke posisi Andi saat itu, sesuai ODE pure pursuit pada solusi.";
+        }
+      }
+
+      function rebuild(keepTime = false) {
+        const params = readParams();
+        trajectory = buildTrajectory(params);
+        const oldTime = currentTime;
+        currentTime = keepTime ? Math.min(oldTime, params.tCatch) : 0;
+        els.timeSlider.max = params.tCatch.toFixed(6);
+        els.timeSlider.step = (params.tCatch / STEPS).toFixed(6);
+        els.timeSlider.value = currentTime;
+        draw();
+      }
+
+      function setPlaying(next) {
+        isPlaying = next;
+        els.playPause.textContent = isPlaying ? "Pause" : "Play";
+        lastFrame = performance.now();
+      }
+
+      function tick(now) {
+        if (isPlaying && trajectory) {
+          const dt = Math.min(0.08, (now - lastFrame) / 1000);
+          currentTime += dt * trajectory.params.speed;
+          if (currentTime >= trajectory.params.tCatch) {
+            currentTime = trajectory.params.tCatch;
+            setPlaying(false);
+          }
+          els.timeSlider.value = currentTime;
+          draw();
+        }
+        lastFrame = now;
+        requestAnimationFrame(tick);
+      }
+
+      els.playPause.addEventListener("click", () => setPlaying(!isPlaying));
+      els.reset.addEventListener("click", () => {
+        currentTime = 0;
+        els.timeSlider.value = 0;
+        setPlaying(false);
+        draw();
+      });
+
+      els.timeSlider.addEventListener("input", () => {
+        currentTime = Number(els.timeSlider.value);
+        setPlaying(false);
+        draw();
+      });
+
+      for (const element of [els.lSlider, els.vSlider, els.vpSlider, els.modeSelect, els.spinSelect]) {
+        element.addEventListener("input", () => rebuild(true));
+      }
+
+      els.speedSlider.addEventListener("input", () => {
+        trajectory.params.speed = Number(els.speedSlider.value);
+        draw();
+      });
+
+      window.addEventListener("resize", resizeCanvas);
+      rebuild(false);
+      resizeCanvas();
+      requestAnimationFrame(tick);
+    })();
+  </script>
+</body>
+</html>
