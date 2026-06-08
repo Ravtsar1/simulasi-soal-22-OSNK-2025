@@ -10,3 +10,4 @@ Simulasi memuat dua kasus gerak Didi:
 File utama:
 
 - `index.html`
+- `solusi-soal-22-osnk-2025.pdf`
